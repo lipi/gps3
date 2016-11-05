@@ -1,15 +1,15 @@
 #!/usr/bin/env python3.5
 # coding=utf-8
-"""Threaded gps client"""
+"""Threaded gps3 client"""
 from __future__ import print_function
 
 from threading import Thread
 from time import sleep
 
 try:  # This kludge to get around imports with files and directories the same name.
-    import agps3  # Python 3
+    import gps3  # Python 3
 except ImportError:
-    from . import agps3  # Python 2
+    from . import gps3  # Python 2
 
 __author__ = 'Moe'
 __copyright__ = 'Copyright 2016  Moe'
@@ -21,13 +21,13 @@ GPSD_PORT = 2947  # defaults
 PROTOCOL = 'json'  # "
 
 
-class AGPS3mechanism(object):
+class GPS3mechanism(object):
     """Create threaded data stream as updated object attributes
     """
 
     def __init__(self):
-        self.socket = agps3.GPSDSocket()
-        self.data_stream = agps3.DataStream()
+        self.socket = gps3.GPSDSocket()
+        self.data_stream = gps3.DataStream()
 
     def stream_data(self, host=HOST, port=GPSD_PORT, enable=True, gpsd_protocol=PROTOCOL, devicepath=None):
         """ Connect and command, point and shoot, flail and bail
@@ -69,9 +69,9 @@ if __name__ == '__main__':
     from misc import add_args
     args = add_args()
 
-    agps3_thread = AGPS3mechanism()  # The thread triumvirate
-    agps3_thread.stream_data(host=args.host, port=args.port, gpsd_protocol=args.gpsd_protocol)
-    agps3_thread.run_thread(usnap=.2)  # Throttle sleep between empty lookups in seconds defaults = 0.2 of a second.
+    gps3_thread = GPS3mechanism()  # The thread triumvirate
+    gps3_thread.stream_data(host=args.host, port=args.port, gpsd_protocol=args.gpsd_protocol)
+    gps3_thread.run_thread(usnap=.2)  # Throttle sleep between empty lookups in seconds defaults = 0.2 of a second.
 
     seconds_nap = int(args.seconds_nap)  # Threaded Demo loop 'seconds_nap' is not the same as 'usnap'
     while True:
@@ -79,11 +79,12 @@ if __name__ == '__main__':
             print('{:.0%} wait period of {} seconds'.format(nod / seconds_nap, seconds_nap), end='\r')
             sleep(1)
 
-        print('\nGPS3 Thread still functioning at {}'.format(agps3_thread.data_stream.time))
-        print('Lat:{}  Lon:{}  Speed:{}  Course:{}\n'.format(agps3_thread.data_stream.lat,
-                                                             agps3_thread.data_stream.lon,
-                                                             agps3_thread.data_stream.speed,
-                                                             agps3_thread.data_stream.track))
+        print('\nGPS3 Thread still functioning at {}'.format(gps3_thread.data_stream.TPV['time']))
+        print('Lat:{}  Lon:{}  Speed:{}  Course:{}\n'.format(gps3_thread.data_stream.TPV['lat'],
+                                                             gps3_thread.data_stream.TPV['lon'],
+                                                             gps3_thread.data_stream.TPV['speed'],
+                                                             gps3_thread.data_stream.TPV['track']))
 #
 ######
 # END
+
